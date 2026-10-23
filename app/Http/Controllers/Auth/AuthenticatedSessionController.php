@@ -26,6 +26,21 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        $loginAs = $request->input('login_as') === 'admin' ? 'admin' : 'siswa';
+
+        if ($request->user()->role !== $loginAs) {
+            Auth::guard('web')->logout();
+
+            return back()
+                ->withInput($request->only('email', 'login_as'))
+                ->withErrors([
+                    'email' => $loginAs === 'admin'
+                        ? 'Akun ini bukan akun administrator.'
+                        : 'Akun administrator harus masuk lewat form Admin.',
+                ]);
+        }
+
+
         $request->session()->regenerate();
 
         // Arahkan ke dashboard sesuai role user

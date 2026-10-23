@@ -6,21 +6,21 @@
         </div>
     @endif
 
-    <!-- Stat Cards -->
+        <!-- Stat Cards -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div class="bg-white rounded-2xl shadow-sm border-2 border-gray-900 p-5">
             <p class="text-sm text-gray-400">Total Pengaduan</p>
             <p class="text-3xl font-bold text-gray-900 mt-1">{{ $stats['total'] }}</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border-2 border-indigo-500 p-5">
+        <div class="bg-white rounded-2xl shadow-sm border-2 border-amber-400 p-5">
             <p class="text-sm text-gray-400">Pending</p>
             <p class="text-3xl font-bold text-amber-500 mt-1">{{ $stats['pending'] }}</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div class="bg-white rounded-2xl shadow-sm border-2 border-emerald-500 p-5">
             <p class="text-sm text-gray-400">Approved</p>
             <p class="text-3xl font-bold text-emerald-500 mt-1">{{ $stats['approved'] }}</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+        <div class="bg-white rounded-2xl shadow-sm border-2 border-red-500 p-5">
             <p class="text-sm text-gray-400">Rejected</p>
             <p class="text-3xl font-bold text-red-500 mt-1">{{ $stats['rejected'] }}</p>
         </div>

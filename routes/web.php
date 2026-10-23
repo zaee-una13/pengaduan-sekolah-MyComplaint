@@ -16,6 +16,10 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+Route::get('/dashboard', function () {
+    return redirect('/');
+})->middleware('auth')->name('dashboard');
+
 // Route Khusus Siswa
 Route::middleware(['auth', 'role:siswa'])->group(function () {
     Route::get('/siswa/dashboard', [PengaduanController::class, 'dashboardSiswa'])->name('siswa.dashboard');
