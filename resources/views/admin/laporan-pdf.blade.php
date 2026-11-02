@@ -3,12 +3,13 @@
 <head>
     <title>Laporan Pengaduan Sekolah</title>
     <style>
-        body { font-family: sans-serif; font-size: 12px; }
-        .header { text-align: center; margin-bottom: 20px; }
-        .header h2 { margin: 0; }
+        body { font-family: sans-serif; font-size: 10px; }
+        .header { text-align: center; margin-bottom: 16px; }
+        .header h2 { margin: 0; font-size: 15px; }
+        .header p { margin: 4px 0 0; }
         table { width: 100%; border-collapse: collapse; margin-top: 10px; }
         table, th, td { border: 1px solid #333; }
-        th, td { padding: 8px; text-align: left; }
+        th, td { padding: 5px; text-align: left; vertical-align: top; }
         th { background-color: #f2f2f2; }
         .badge { font-weight: bold; text-transform: uppercase; }
     </style>
@@ -23,10 +24,13 @@
         <thead>
             <tr>
                 <th>No</th>
-                <th>Tanggal</th>
+                <th>Dilaporkan</th>
+                <th>Kejadian</th>
                 <th>Nama Siswa</th>
                 <th>Kategori</th>
-                <th>Judul Pengaduan</th>
+                <th>Urgensi</th>
+                <th>Lokasi</th>
+                <th>Judul</th>
                 <th>Isi Laporan</th>
                 <th>Status</th>
                 <th>Catatan Admin</th>
@@ -37,8 +41,11 @@
             <tr>
                 <td>{{ $index + 1 }}</td>
                 <td>{{ $p->created_at->format('d/m/Y') }}</td>
+                <td>{{ $p->tanggal_kejadian?->format('d/m/Y') ?? '-' }}</td>
                 <td>{{ $p->user->name ?? 'Anonim' }}</td>
                 <td>{{ $p->category->name ?? '-' }}</td>
+                <td><span class="badge">{{ $p->urgensi }}</span></td>
+                <td>{{ $p->lokasi ?? '-' }}</td>
                 <td>{{ $p->judul }}</td>
                 <td>{{ $p->isi_laporan }}</td>
                 <td><span class="badge">{{ $p->status }}</span></td>

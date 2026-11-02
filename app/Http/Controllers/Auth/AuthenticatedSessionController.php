@@ -26,6 +26,7 @@ class AuthenticatedSessionController extends Controller
     {
         $request->authenticate();
 
+        // Form yang dipakai harus sesuai dengan role akun
         $loginAs = $request->input('login_as') === 'admin' ? 'admin' : 'siswa';
 
         if ($request->user()->role !== $loginAs) {
@@ -40,8 +41,10 @@ class AuthenticatedSessionController extends Controller
                 ]);
         }
 
-
         $request->session()->regenerate();
+
+        // Catat waktu login terakhir (untuk pemantauan admin)
+        $request->user()->forceFill(['last_login_at' => now()])->save();
 
         // Arahkan ke dashboard sesuai role user
         if ($request->user()->role === 'admin') {

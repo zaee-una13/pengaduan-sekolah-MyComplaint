@@ -9,14 +9,23 @@ class Pengaduan extends Model
 {
     use HasFactory;
 
+    public const URGENSI = ['rendah', 'sedang', 'tinggi'];
+
     protected $fillable = [
         'user_id',
         'category_id',
         'judul',
         'isi_laporan',
+        'tanggal_kejadian',
+        'lokasi',
+        'urgensi',
         'foto',
         'status',
         'catatan_penyerahan',
+    ];
+
+    protected $casts = [
+        'tanggal_kejadian' => 'date',
     ];
 
     public function user()

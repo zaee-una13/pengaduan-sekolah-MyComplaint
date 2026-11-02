@@ -7,10 +7,14 @@ use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Barryvdh\DomPDF\Facade\Pdf;
 
 class PengaduanController extends Controller
 {
+    // Kategori yang boleh dipilih siswa
+    private const KATEGORI_AKTIF = ['Fasilitas', 'Kedisiplinan'];
+
     // ======================================
     // DASBOR (Overview) - Siswa
     // ======================================
@@ -41,9 +45,8 @@ class PengaduanController extends Controller
         ];
 
         $categoryChart = [
-            ['label' => 'Fasilitas', 'percent' => 45],
-            ['label' => 'Akademik', 'percent' => 30],
-            ['label' => 'Kedisiplinan', 'percent' => 25],
+            ['label' => 'Fasilitas', 'percent' => 60],
+            ['label' => 'Kedisiplinan', 'percent' => 40],
         ];
 
         return view('siswa.dashboard', compact('stats', 'pengaduanTerbaru', 'weeklyChart', 'categoryChart'));
@@ -67,7 +70,7 @@ class PengaduanController extends Controller
     // ======================================
     public function createSiswa()
     {
-        $categories = Category::orderBy('name')->get();
+        $categories = $this->kategoriAktif();
 
         return view('siswa.pengaduan.create', compact('categories'));
     }
@@ -77,27 +80,15 @@ class PengaduanController extends Controller
     // =================================
     public function store(Request $request)
     {
-        $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'judul'       => 'required|string|max:255',
-            'isi_laporan' => 'required|string',
-            'foto'        => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        $data = $request->validate($this->rules(), [], $this->namaField());
 
-        $fotoPath = null;
+        $data['user_id'] = Auth::id();
+        $data['status']  = 'pending';
+        $data['foto']    = $request->hasFile('foto')
+            ? $request->file('foto')->store('pengaduan', 'public')
+            : null;
 
-        if ($request->hasFile('foto')) {
-            $fotoPath = $request->file('foto')->store('pengaduan', 'public');
-        }
-
-        Pengaduan::create([
-            'user_id'     => Auth::id(),
-            'category_id' => $request->category_id,
-            'judul'       => $request->judul,
-            'isi_laporan' => $request->isi_laporan,
-            'foto'        => $fotoPath,
-            'status'      => 'pending',
-        ]);
+        Pengaduan::create($data);
 
         return redirect()->route('siswa.pengaduan.index')->with('success', 'Pengaduan berhasil diajukan.');
     }
@@ -111,7 +102,7 @@ class PengaduanController extends Controller
             return $tolak;
         }
 
-        $categories = Category::orderBy('name')->get();
+        $categories = $this->kategoriAktif();
 
         return view('siswa.pengaduan.edit', compact('pengaduan', 'categories'));
     }
@@ -125,20 +116,11 @@ class PengaduanController extends Controller
             return $tolak;
         }
 
-        $request->validate([
-            'category_id' => 'required|exists:categories,id',
-            'judul'       => 'required|string|max:255',
-            'isi_laporan' => 'required|string',
-            'foto'        => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        $data = $request->validate($this->rules(), [], $this->namaField());
 
-        $data = [
-            'category_id' => $request->category_id,
-            'judul'       => $request->judul,
-            'isi_laporan' => $request->isi_laporan,
-        ];
+        // Foto ditangani terpisah: hanya diganti jika siswa upload foto baru
+        unset($data['foto']);
 
-        // Jika siswa upload foto baru, hapus foto lama lalu simpan yang baru
         if ($request->hasFile('foto')) {
             if ($pengaduan->foto) {
                 Storage::disk('public')->delete($pengaduan->foto);
@@ -167,6 +149,41 @@ class PengaduanController extends Controller
         $pengaduan->delete();
 
         return redirect()->route('siswa.pengaduan.index')->with('success', 'Pengaduan berhasil dihapus.');
+    }
+
+    // ======================================
+    // Aturan validasi form pengaduan (dipakai store & update)
+    // ======================================
+    private function rules(): array
+    {
+        return [
+            'category_id'      => ['required', Rule::in($this->kategoriAktif()->pluck('id')->all())],
+            'judul'            => ['required', 'string', 'max:255'],
+            'urgensi'          => ['required', Rule::in(Pengaduan::URGENSI)],
+            'tanggal_kejadian' => ['required', 'date', 'before_or_equal:today'],
+            'lokasi'           => ['required', 'string', 'max:255'],
+            'isi_laporan'      => ['required', 'string', 'min:10'],
+            'foto'             => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+        ];
+    }
+
+    // Nama field yang tampil di pesan error
+    private function namaField(): array
+    {
+        return [
+            'category_id'      => 'kategori',
+            'judul'            => 'judul',
+            'urgensi'          => 'tingkat urgensi',
+            'tanggal_kejadian' => 'tanggal kejadian',
+            'lokasi'           => 'lokasi',
+            'isi_laporan'      => 'isi laporan',
+            'foto'             => 'foto',
+        ];
+    }
+
+    private function kategoriAktif()
+    {
+        return Category::whereIn('name', self::KATEGORI_AKTIF)->orderBy('name')->get();
     }
 
     // ======================================
@@ -215,10 +232,8 @@ class PengaduanController extends Controller
         ];
 
         $categoryChart = [
-            ['label' => 'Fasilitas', 'percent' => 36],
-            ['label' => 'Akademik', 'percent' => 27],
-            ['label' => 'Kedisiplinan', 'percent' => 21],
-            ['label' => 'Lainnya', 'percent' => 16],
+            ['label' => 'Fasilitas', 'percent' => 64],
+            ['label' => 'Kedisiplinan', 'percent' => 36],
         ];
 
         return view('admin.dashboard', compact('stats', 'pengaduanTerbaru', 'weeklyChart', 'categoryChart'));
@@ -226,10 +241,13 @@ class PengaduanController extends Controller
 
     // ======================================
     // DATA PENGADUAN (Semua) - Admin
+    // Urutan: belum diproses dulu, lalu urgensi tertinggi, lalu terbaru
     // ======================================
     public function indexAdmin()
     {
         $pengaduans = Pengaduan::with(['user', 'category'])
+            ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
+            ->orderByRaw("FIELD(urgensi, 'tinggi', 'sedang', 'rendah')")
             ->latest()
             ->get();
 
@@ -262,9 +280,12 @@ class PengaduanController extends Controller
 
     public function cetakPdf()
     {
-        $pengaduans = Pengaduan::with(['user', 'category'])->latest()->get();
+        $pengaduans = Pengaduan::with(['user', 'category'])
+            ->orderBy('created_at')
+            ->get();
 
-        $pdf = Pdf::loadView('admin.laporan-pdf', compact('pengaduans'));
+        $pdf = Pdf::loadView('admin.laporan-pdf', compact('pengaduans'))
+            ->setPaper('a4', 'landscape');
 
         return $pdf->download('laporan-pengaduan-sekolah.pdf');
     }

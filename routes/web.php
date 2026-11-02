@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\PengaduanController;
+use App\Http\Controllers\SiswaController;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
@@ -16,6 +17,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
+// Alias agar redirect bawaan Breeze ke route('dashboard') tidak error
 Route::get('/dashboard', function () {
     return redirect('/');
 })->middleware('auth')->name('dashboard');
@@ -39,13 +41,22 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/admin/pengaduan', [PengaduanController::class, 'indexAdmin'])->name('admin.pengaduan.index');
     Route::patch('/admin/pengaduan/{id}/status', [PengaduanController::class, 'updateStatus'])->name('admin.pengaduan.updateStatus');
     Route::get('/admin/pengaduan/cetak-pdf', [PengaduanController::class, 'cetakPdf'])->name('admin.pengaduan.cetakPdf');
+
+    // Kelola akun siswa (hanya admin)
+    Route::prefix('admin/siswa')->name('admin.siswa.')->group(function () {
+        Route::get('/', [SiswaController::class, 'index'])->name('index');
+        Route::get('/create', [SiswaController::class, 'create'])->name('create');
+        Route::post('/', [SiswaController::class, 'store'])->name('store');
+        Route::get('/{siswa}/edit', [SiswaController::class, 'edit'])->name('edit');
+        Route::put('/{siswa}', [SiswaController::class, 'update'])->name('update');
+        Route::delete('/{siswa}', [SiswaController::class, 'destroy'])->name('destroy');
+    });
 });
 
-// Route Pengaturan Profil
+// Route Pengaturan Profil (tanpa hapus akun: akun hanya dihapus oleh admin lewat Kelola Siswa)
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 require __DIR__.'/auth.php';

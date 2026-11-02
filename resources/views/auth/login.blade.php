@@ -68,9 +68,7 @@
                     </label>
 
                     @if (Route::has('password.request'))
-                        <a class="text-[#635BFF] font-medium hover:underline" href="{{ route('password.request') }}">
-                            Lupa kata sandi?
-                        </a>
+                        <span class="text-gray-400">Lupa kata sandi? Hubungi admin.</span>
                     @endif
                 </div>
 

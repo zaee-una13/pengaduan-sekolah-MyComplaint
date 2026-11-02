@@ -5,6 +5,7 @@
         'dashboard'  => '<rect x="3.5" y="12" width="4.5" height="8.5" rx="1"/><rect x="9.75" y="7" width="4.5" height="13.5" rx="1"/><rect x="16" y="3.5" width="4.5" height="17" rx="1"/>',
         'data'       => '<path d="M4 7a1.5 1.5 0 0 1 1.5-1.5h3.17a1.5 1.5 0 0 1 1.06.44l1 1a1.5 1.5 0 0 0 1.06.44h6.71A1.5 1.5 0 0 1 20 8.88V17a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 17V7Z"/>',
         'ajukan'     => '<circle cx="12" cy="12" r="8.25"/><path d="M12 8.5v7M8.5 12h7"/>',
+        'siswa'      => '<circle cx="9" cy="8" r="3.25"/><path d="M3.5 19a5.5 5.5 0 0 1 11 0"/><path d="M16 5.2a3.25 3.25 0 0 1 0 5.6M17.5 14a5.5 5.5 0 0 1 3 5"/>',
         'pengaturan' => '<circle cx="12" cy="12" r="3"/><path d="M19.4 13.5a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V19.5a2 2 0 1 1-4 0v-.09a1.65 1.65 0 0 0-1-1.51 1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H4.5a2 2 0 1 1 0-4h.09a1.65 1.65 0 0 0 1.51-1 1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H10.5a1.65 1.65 0 0 0 1-1.51V4.5a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V10.5a1.65 1.65 0 0 0 1.51 1H19.5a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1Z"/>',
     ];
 
@@ -17,6 +18,7 @@
         : [
             ['dashboard', 'Dasbor', 'admin.dashboard'],
             ['data', 'Data Pengaduan', 'admin.pengaduan.index'],
+            ['siswa', 'Kelola Siswa', 'admin.siswa.index'],
         ];
     $menu[] = ['pengaturan', 'Pengaturan', 'profile.edit'];
 @endphp
@@ -28,6 +30,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'Laravel') }} - {{ $title }}</title>
     <link rel="icon" type="image/svg+xml" href="{{ asset('favicon.svg') }}">
+    <style>[x-cloak]{display:none !important}</style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans antialiased bg-gray-50 text-gray-900">
@@ -69,9 +72,7 @@
 
             <div class="shrink-0 p-4 border-t border-gray-100">
                 <div class="flex items-center gap-3 mb-3">
-                    <div class="w-9 h-9 shrink-0 rounded-full bg-indigo-600 flex items-center justify-center text-xs font-bold text-white">
-                        {{ strtoupper(substr(auth()->user()->name, 0, 2)) }}
-                    </div>
+                    <x-avatar :user="auth()->user()" size="w-9 h-9 text-xs" />
                     <div class="min-w-0 text-sm leading-tight">
                         <p class="font-semibold text-gray-800 truncate">{{ auth()->user()->name }}</p>
                         <p class="text-xs text-gray-400 capitalize">{{ auth()->user()->role }}</p>

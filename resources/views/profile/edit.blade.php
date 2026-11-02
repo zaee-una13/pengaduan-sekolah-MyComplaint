@@ -2,17 +2,16 @@
 
     <div class="max-w-2xl space-y-6">
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
             @include('profile.partials.update-profile-information-form')
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            @include('profile.partials.update-password-form')
-        </div>
-
-        <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-            @include('profile.partials.delete-user-form')
-        </div>
+        {{-- Ganti kata sandi hanya untuk admin. Siswa: dikelola admin. --}}
+        @if (auth()->user()->role === 'admin')
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
+                @include('profile.partials.update-password-form')
+            </div>
+        @endif
 
     </div>
 

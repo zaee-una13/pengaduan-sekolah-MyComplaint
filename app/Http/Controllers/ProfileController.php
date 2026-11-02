@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\ProfileUpdateRequest;
+use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -22,39 +23,46 @@ class ProfileController extends Controller
     }
 
     /**
-     * Update the user's profile information.
+     * Update the user's profile.
+     * Siswa: hanya nama & foto profil. Admin: nama, email, & foto profil.
      */
-    public function update(ProfileUpdateRequest $request): RedirectResponse
+    public function update(Request $request): RedirectResponse
     {
-        $request->user()->fill($request->validated());
-
-        if ($request->user()->isDirty('email')) {
-            $request->user()->email_verified_at = null;
-        }
-
-        $request->user()->save();
-
-        return Redirect::route('profile.edit')->with('status', 'profile-updated');
-    }
-
-    /**
-     * Delete the user's account.
-     */
-    public function destroy(Request $request): RedirectResponse
-    {
-        $request->validateWithBag('userDeletion', [
-            'password' => ['required', 'current_password'],
-        ]);
-
         $user = $request->user();
 
-        Auth::logout();
+        $rules = [
+            'name'        => ['required', 'string', 'max:255'],
+            'foto_profil' => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'hapus_foto'  => ['nullable', 'boolean'],
+        ];
 
-        $user->delete();
+        if ($user->role === 'admin') {
+            $rules['email'] = [
+                'required', 'string', 'lowercase', 'email', 'max:255',
+                Rule::unique(User::class)->ignore($user->id),
+            ];
+        }
 
-        $request->session()->invalidate();
-        $request->session()->regenerateToken();
+        $data = $request->validate($rules);
 
-        return Redirect::to('/');
+        $user->name = $data['name'];
+
+        if ($user->role === 'admin') {
+            $user->email = $data['email'];
+        }
+
+        if ($request->hasFile('foto_profil')) {
+            if ($user->foto_profil) {
+                Storage::disk('public')->delete($user->foto_profil);
+            }
+            $user->foto_profil = $request->file('foto_profil')->store('profil', 'public');
+        } elseif ($request->boolean('hapus_foto') && $user->foto_profil) {
+            Storage::disk('public')->delete($user->foto_profil);
+            $user->foto_profil = null;
+        }
+
+        $user->save();
+
+        return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 }

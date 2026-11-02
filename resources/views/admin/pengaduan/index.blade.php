@@ -5,7 +5,7 @@
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <div>
                 <h3 class="text-xl font-bold text-gray-900">Daftar Pengaduan Siswa</h3>
-                <p class="text-sm text-gray-400">Kelola dan berikan tanggapan untuk pengaduan yang masuk.</p>
+                <p class="text-sm text-gray-400">Yang belum diproses dan paling mendesak ditampilkan paling atas.</p>
             </div>
 
             <a href="{{ route('admin.pengaduan.cetakPdf') }}"
@@ -33,11 +33,11 @@
                 <table class="w-full text-sm text-left text-gray-500">
                     <thead class="text-xs text-gray-400 uppercase bg-gray-50">
                         <tr>
-                            <th class="px-4 py-3 rounded-l-lg">Tanggal</th>
-                            <th class="px-4 py-3">Nama Siswa</th>
+                            <th class="px-4 py-3 rounded-l-lg">Dilaporkan</th>
+                            <th class="px-4 py-3">Siswa</th>
+                            <th class="px-4 py-3">Kejadian</th>
                             <th class="px-4 py-3">Kategori</th>
-                            <th class="px-4 py-3">Judul</th>
-                            <th class="px-4 py-3">Isi Laporan</th>
+                            <th class="px-4 py-3">Judul &amp; Isi</th>
                             <th class="px-4 py-3">Foto</th>
                             <th class="px-4 py-3">Status</th>
                             <th class="px-4 py-3 rounded-r-lg min-w-[200px]">Aksi / Verifikasi</th>
@@ -49,10 +49,17 @@
                                 <td class="px-4 py-3 whitespace-nowrap">{{ $item->created_at->format('d M Y, H:i') }}</td>
                                 <td class="px-4 py-3 font-medium text-gray-900">{{ $item->user->name ?? 'Siswa' }}</td>
                                 <td class="px-4 py-3">
+                                    <p class="whitespace-nowrap text-gray-700">{{ $item->tanggal_kejadian?->format('d M Y') ?? '-' }}</p>
+                                    <p class="text-xs text-gray-400 break-words">{{ $item->lokasi ?? '-' }}</p>
+                                </td>
+                                <td class="px-4 py-3">
                                     <span class="px-2 py-1 text-xs font-medium bg-indigo-50 text-indigo-700 rounded-full">{{ $item->category->name ?? '-' }}</span>
                                 </td>
-                                <td class="px-4 py-3 font-semibold text-gray-800 break-words">{{ $item->judul }}</td>
-                                <td class="px-4 py-3 max-w-xs break-words">{{ $item->isi_laporan }}</td>
+                                <td class="px-4 py-3 max-w-xs">
+                                    <p class="font-semibold text-gray-800 break-words">{{ $item->judul }}</p>
+                                    <div class="mt-1"><x-urgensi-badge :urgensi="$item->urgensi" /></div>
+                                    <p class="mt-1 text-gray-500 break-words">{{ $item->isi_laporan }}</p>
+                                </td>
                                 <td class="px-4 py-3">
                                     @if ($item->foto)
                                         <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" class="text-indigo-600 hover:underline">Lihat Foto</a>
@@ -74,21 +81,27 @@
                     <div class="rounded-xl border border-gray-100 p-4 space-y-3">
                         <div class="flex items-start justify-between gap-3">
                             <div class="min-w-0">
-                                <p class="text-xs text-gray-400">{{ $item->created_at->format('d M Y, H:i') }}</p>
+                                <p class="text-xs text-gray-400">Dilaporkan {{ $item->created_at->format('d M Y, H:i') }}</p>
                                 <h4 class="font-semibold text-gray-900 break-words">{{ $item->judul }}</h4>
                                 <p class="text-sm text-gray-500">oleh {{ $item->user->name ?? 'Siswa' }}</p>
                             </div>
                             <x-status-badge :status="$item->status" class="shrink-0" />
                         </div>
 
-                        <div class="flex flex-wrap items-center gap-3 text-xs">
+                        <div class="flex flex-wrap items-center gap-2 text-xs">
                             <span class="px-2 py-1 bg-indigo-50 text-indigo-700 rounded-full font-medium">{{ $item->category->name ?? '-' }}</span>
-                            @if ($item->foto)
-                                <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" class="text-indigo-600 underline">Lihat Foto</a>
-                            @endif
+                            <x-urgensi-badge :urgensi="$item->urgensi" />
                         </div>
 
+                        <p class="text-xs text-gray-500">
+                            Kejadian {{ $item->tanggal_kejadian?->format('d M Y') ?? '-' }} · {{ $item->lokasi ?? '-' }}
+                        </p>
+
                         <p class="text-sm text-gray-600 break-words">{{ $item->isi_laporan }}</p>
+
+                        @if ($item->foto)
+                            <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" class="inline-block text-xs text-indigo-600 underline">Lihat Foto</a>
+                        @endif
 
                         <div class="pt-3 border-t border-gray-100">
                             @include('admin.pengaduan._verifikasi', ['item' => $item])
