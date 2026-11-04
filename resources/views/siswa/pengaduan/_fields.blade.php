@@ -98,7 +98,9 @@
 <!-- Foto -->
 <div>
     <label for="foto" class="block text-sm font-medium text-gray-700 mb-1">
-        {{ $pengaduan ? 'Ganti Foto' : 'Lampirkan Foto' }} <span class="text-gray-400 font-normal">(opsional, maks 2MB)</span>
+        {{ $pengaduan ? 'Ganti Foto' : 'Lampirkan Foto' }}
+        <span class="text-red-500">*</span>
+        <span class="text-gray-400 font-normal">(maks 2MB)</span>
     </label>
 
     @if ($pengaduan && $pengaduan->foto)
@@ -110,6 +112,7 @@
     @endif
 
     <input id="foto" name="foto" type="file" accept="image/*"
+           {{ ($pengaduan && $pengaduan->foto) ? '' : 'required' }}
            class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100">
     <x-input-error :messages="$errors->get('foto')" class="mt-2" />
 </div>

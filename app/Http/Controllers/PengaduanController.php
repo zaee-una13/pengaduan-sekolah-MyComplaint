@@ -80,13 +80,12 @@ class PengaduanController extends Controller
     // =================================
     public function store(Request $request)
     {
-        $data = $request->validate($this->rules(), [], $this->namaField());
+        // Semua kolom wajib, termasuk foto
+        $data = $request->validate($this->rules(true), [], $this->namaField());
 
         $data['user_id'] = Auth::id();
         $data['status']  = 'pending';
-        $data['foto']    = $request->hasFile('foto')
-            ? $request->file('foto')->store('pengaduan', 'public')
-            : null;
+        $data['foto']    = $request->file('foto')->store('pengaduan', 'public');
 
         Pengaduan::create($data);
 
@@ -116,7 +115,8 @@ class PengaduanController extends Controller
             return $tolak;
         }
 
-        $data = $request->validate($this->rules(), [], $this->namaField());
+        // Foto wajib hanya jika laporan ini belum punya foto
+        $data = $request->validate($this->rules(! $pengaduan->foto), [], $this->namaField());
 
         // Foto ditangani terpisah: hanya diganti jika siswa upload foto baru
         unset($data['foto']);
@@ -153,8 +153,9 @@ class PengaduanController extends Controller
 
     // ======================================
     // Aturan validasi form pengaduan (dipakai store & update)
+    // $fotoWajib: true saat buat baru, atau saat edit jika laporan belum punya foto
     // ======================================
-    private function rules(): array
+    private function rules(bool $fotoWajib = true): array
     {
         return [
             'category_id'      => ['required', Rule::in($this->kategoriAktif()->pluck('id')->all())],
@@ -163,7 +164,7 @@ class PengaduanController extends Controller
             'tanggal_kejadian' => ['required', 'date', 'before_or_equal:today'],
             'lokasi'           => ['required', 'string', 'max:255'],
             'isi_laporan'      => ['required', 'string', 'min:10'],
-            'foto'             => ['nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
+            'foto'             => [$fotoWajib ? 'required' : 'nullable', 'image', 'mimes:jpeg,png,jpg', 'max:2048'],
         ];
     }
 
