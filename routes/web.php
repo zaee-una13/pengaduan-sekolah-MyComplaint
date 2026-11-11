@@ -14,7 +14,7 @@ Route::get('/', function () {
         }
         return redirect()->route('siswa.dashboard');
     }
-    return view('welcome');
+    return view('login');
 });
 
 // Alias agar redirect bawaan Breeze ke route('dashboard') tidak error
