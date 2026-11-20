@@ -51,7 +51,11 @@
                                 </td>
                                 <td class="px-4 py-4">
                                     @if ($item->foto)
-                                        <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" class="text-indigo-600 underline">Lihat Foto</a>
+                                        <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" title="Klik untuk memperbesar">
+                                            <img src="{{ asset('storage/' . $item->foto) }}" alt="Foto pengaduan"
+                                                 loading="lazy"
+                                                 class="w-16 h-16 object-cover rounded-lg border border-gray-200 hover:opacity-80 transition">
+                                        </a>
                                     @else
                                         <span class="text-gray-300">-</span>
                                     @endif
@@ -89,7 +93,11 @@
                         <p class="text-sm text-gray-600 break-words">{{ Str::limit($item->isi_laporan, 140) }}</p>
 
                         @if ($item->foto)
-                            <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" class="inline-block text-xs text-indigo-600 underline">Lihat Foto</a>
+                            <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" class="inline-block" title="Klik untuk memperbesar">
+                                <img src="{{ asset('storage/' . $item->foto) }}" alt="Foto pengaduan"
+                                     loading="lazy"
+                                     class="w-24 h-24 object-cover rounded-xl border border-gray-200">
+                            </a>
                         @endif
 
                         @if ($item->catatan_penyerahan)
@@ -102,6 +110,12 @@
                         <div class="pt-1">@include('siswa.pengaduan._aksi', ['item' => $item])</div>
                     </div>
                 @endforeach
+            </div>
+        @endif
+
+        @if ($pengaduans->hasPages())
+            <div class="mt-6">
+                {{ $pengaduans->links() }}
             </div>
         @endif
     </div>

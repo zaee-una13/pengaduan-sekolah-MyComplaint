@@ -60,7 +60,7 @@ class PengaduanController extends Controller
         $pengaduans = Pengaduan::with('category')
             ->where('user_id', Auth::id())
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('siswa.pengaduan.index', compact('pengaduans'));
     }
@@ -250,7 +250,7 @@ class PengaduanController extends Controller
             ->orderByRaw("FIELD(status, 'pending', 'approved', 'rejected')")
             ->orderByRaw("FIELD(urgensi, 'tinggi', 'sedang', 'rendah')")
             ->latest()
-            ->get();
+            ->paginate(10);
 
         return view('admin.pengaduan.index', compact('pengaduans'));
     }

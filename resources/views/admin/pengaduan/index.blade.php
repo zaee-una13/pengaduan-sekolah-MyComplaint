@@ -62,7 +62,11 @@
                                 </td>
                                 <td class="px-4 py-3">
                                     @if ($item->foto)
-                                        <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" class="text-indigo-600 hover:underline">Lihat Foto</a>
+                                        <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" title="Klik untuk memperbesar">
+                                            <img src="{{ asset('storage/' . $item->foto) }}" alt="Foto pengaduan"
+                                                 loading="lazy"
+                                                 class="w-16 h-16 object-cover rounded-lg border border-gray-200 hover:opacity-80 transition">
+                                        </a>
                                     @else
                                         <span class="text-gray-300">-</span>
                                     @endif
@@ -100,7 +104,11 @@
                         <p class="text-sm text-gray-600 break-words">{{ $item->isi_laporan }}</p>
 
                         @if ($item->foto)
-                            <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" class="inline-block text-xs text-indigo-600 underline">Lihat Foto</a>
+                            <a href="{{ asset('storage/' . $item->foto) }}" target="_blank" class="inline-block" title="Klik untuk memperbesar">
+                                <img src="{{ asset('storage/' . $item->foto) }}" alt="Foto pengaduan"
+                                     loading="lazy"
+                                     class="w-24 h-24 object-cover rounded-xl border border-gray-200">
+                            </a>
                         @endif
 
                         <div class="pt-3 border-t border-gray-100">
@@ -108,6 +116,12 @@
                         </div>
                     </div>
                 @endforeach
+            </div>
+        @endif
+
+        @if ($pengaduans->hasPages())
+            <div class="mt-6">
+                {{ $pengaduans->links() }}
             </div>
         @endif
     </div>
